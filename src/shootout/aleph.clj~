@@ -1,0 +1,38 @@
+(ns shootout.core
+  (:require [aleph.http   :as ahttp]
+            [shootout.logging   :as log])
+  (:use [lamina.core]))
+
+(defonce *server* (atom nil))
+
+(defn handler [request]
+  {:status 200
+   :headers {"content-type" "text/plain"}
+   :body "Chickens are little dinosaurs."})
+
+(defn handler-2 [channel request]
+  (enqueue channel
+   {:status 200
+    :headers {"content-type" "text/plain"}
+    :body  "Chickens are sublime creatures."}))
+
+(defn start-server []
+  (reset! *server*
+          (ahttp/start-http-server
+           (ahttp/wrap-ring-handler handler)
+           {:port 8080})))
+
+(defn start-server-2 []
+  (reset! *server*
+          (ahttp/start-http-server
+           handler-2
+           {:port 8080})))
+
+
+(comment
+  (reset! *server* (start-server))
+  (reset! *server* (start-server-2))
+  (@*server*)
+
+  )
+
